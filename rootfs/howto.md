@@ -17,7 +17,7 @@ debootstrap --variant=minbase --merged-usr --force-check-gpg  stable ./debian-co
 To enter the chroot, you first need to mount `/dev`, `/sys` and `/proc`:
 
 ```sh
-for x in dev sys proc; do mount --rbind "/${x}" "./debian-conv/${x}"; && mount --make-rslave "./debian-conv/${x}"; done
+for x in dev sys proc; do mount --rbind "/${x}" "./debian-conv/${x}" && mount --make-rslave "./debian-conv/${x}"; done
 ```
 
 A sample chroot command:
