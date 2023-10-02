@@ -155,3 +155,11 @@ pkill -f -- '--homedir /tmp'
 Now you have a fully functional Devuan rootfs in `./devuan-daedalus`
 
 Enjoy :3
+
+## 3. If you don't want to do all of that every time
+
+Creating a minirootfs archive:
+
+```sh
+tar cpvf ./devuan-daedalus-rootfs-2023-10-02.tar -C ./devuan-daedalus/ ./
+```
