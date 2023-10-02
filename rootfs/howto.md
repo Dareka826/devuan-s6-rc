@@ -75,7 +75,7 @@ xargs -d'\n' gpg --homedir /tmp --no-default-keyring --keyring /tmp/devuan.gpg -
 
 ```sh
 gpg --show-keys ./devuan-archive-keyring.gpg
-gpg --show-keys /tmp/devuan.gpg
+gpg --keyring /tmp/devuan.gpg --list-keys
 ```
 
 ### 4. Edit apt sources
