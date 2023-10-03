@@ -18,7 +18,7 @@ do_mount_fs() {
     fi
 }
 
-do_s6-svscan() {
+do_s6_svscan() {
     [ -d /run/service ] || \
         mkdir /run/service
 
@@ -28,7 +28,7 @@ do_s6-svscan() {
     } &
 }
 
-do_s6-rc_init() {
+do_s6_rc_init() {
     [ -d /etc/s6/rc ] || mkdir -p /etc/s6/rc
     [ -d /etc/s6/sv ] || mkdir -p /etc/s6/sv
 
@@ -38,7 +38,7 @@ do_s6-rc_init() {
     s6-rc-init -c /etc/s6/rc/compiled -l /run/s6-rc /run/service
 }
 
-do_s6-svscan_terminate() {
+do_s6_svscan_terminate() {
     s6-svscanctl -t /run/service || :
 }
 
@@ -50,15 +50,15 @@ do_reboot() { reboot   -d -h; }
 case "${RUNLEVEL}" in
     "S")
         do_mount_fs
-        do_s6-svscan
-        do_s6-rc_init
+        do_s6_svscan
+        do_s6_rc_init
         ;;
     "0")
-        do_s6-svscan_terminate
+        do_s6_svscan_terminate
         do_off
         ;;
     "6")
-        do_s6-svscan_terminate
+        do_s6_svscan_terminate
         do_reboot
         ;;
     "1"|"2"|"3"|"4"|"5")
