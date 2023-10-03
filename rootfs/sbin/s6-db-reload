@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+TIME="$(s6-clock)"
+
+s6-rc-compile /etc/s6/rc/compiled-"${TIME}" /etc/s6/sv
+
+if [ -e /run/s6-rc ]; then
+    s6-rc-update -l /run/s6-rc /etc/s6/rc/compiled-"${TIME}"
+fi
+
+if [ -e /etc/s6/rc/compiled ]; then
+    # Atomic link overwrite trick
+    ln -s compiled-"${TIME}" /etc/s6/rc/compiled/compiled
+    mv /etc/s6/rc/compiled/compiled /etc/s6/rc
+else
+    ln -s compiled-"${TIME}" /etc/s6/rc/compiled
+fi

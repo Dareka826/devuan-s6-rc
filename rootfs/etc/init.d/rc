@@ -1,0 +1,74 @@
+#!/bin/sh
+set -eu
+
+RUNLEVEL="${1:-}"
+
+printf "[I]: Runlevel: %s\n" "${RUNLEVEL}"
+
+case "${RUNLEVEL}" in
+    "S")
+        do_mount_fs
+        do_s6-svscan
+        do_s6-rc_init
+        ;;
+    "0")
+        do_s6-svscan_terminate
+        do_off
+        ;;
+    "6")
+        do_s6-svscan_terminate
+        do_reboot
+        ;;
+    "1"|"2"|"3"|"4"|"5")
+        bash
+
+        printf "CONT: " ; read VAR
+        telinit 6
+        ;;
+    *)
+        telinit 6
+        ;;
+esac
+
+exit 0
+
+
+do_mount_fs() {
+    [ -e /proc/stat ] || \
+        mount -t proc proc /proc
+
+    if grep ' /run ' /proc/mounts >/dev/null 2>&1; then
+        mount -o remount,exec /run
+    else
+        mount -t tmpfs none -o exec /run
+    fi
+}
+
+do_s6-svscan() {
+    [ -d /run/service ] || \
+        mkdir /run/service
+
+    {
+        s6-svscan /run/service 2>&1 | \
+            s6-log -b -- t n10 s1000000 /var/log/s6-svscan
+    } &
+}
+
+do_s6-rc_init() {
+    [ -d /etc/s6/rc ] || mkdir -p /etc/s6/rc
+    [ -d /etc/s6/sv ] || mkdir -p /etc/s6/sv
+
+    [ -e /etc/s6/rc/compiled ] || \
+        s6-db-reload
+
+    s6-rc-init -c /etc/s6/rc/compiled -l /run/s6-rc /run/service
+}
+
+do_s6-svscan_terminate() {
+    s6-svscanctl -t /run/service || :
+}
+
+do_off()    { poweroff -d -h; }
+do_reboot() { reboot   -d -h; }
+
+# vim: sw=4 ts=4 et
