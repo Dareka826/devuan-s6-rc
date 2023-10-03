@@ -5,33 +5,7 @@ RUNLEVEL="${1:-}"
 
 printf "[I]: Runlevel: %s\n" "${RUNLEVEL}"
 
-case "${RUNLEVEL}" in
-    "S")
-        do_mount_fs
-        do_s6-svscan
-        do_s6-rc_init
-        ;;
-    "0")
-        do_s6-svscan_terminate
-        do_off
-        ;;
-    "6")
-        do_s6-svscan_terminate
-        do_reboot
-        ;;
-    "1"|"2"|"3"|"4"|"5")
-        bash
-
-        printf "CONT: " ; read VAR
-        telinit 6
-        ;;
-    *)
-        telinit 6
-        ;;
-esac
-
-exit 0
-
+## Functions {{{
 
 do_mount_fs() {
     [ -e /proc/stat ] || \
@@ -70,5 +44,34 @@ do_s6-svscan_terminate() {
 
 do_off()    { poweroff -d -h; }
 do_reboot() { reboot   -d -h; }
+
+## }}}
+
+case "${RUNLEVEL}" in
+    "S")
+        do_mount_fs
+        do_s6-svscan
+        do_s6-rc_init
+        ;;
+    "0")
+        do_s6-svscan_terminate
+        do_off
+        ;;
+    "6")
+        do_s6-svscan_terminate
+        do_reboot
+        ;;
+    "1"|"2"|"3"|"4"|"5")
+        bash
+
+        printf "CONT: " ; read VAR
+        telinit 6
+        ;;
+    *)
+        telinit 6
+        ;;
+esac
+
+exit 0
 
 # vim: sw=4 ts=4 et
