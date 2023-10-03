@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     } else if (pid > 0) {
         // Parent
         char *args[argc + 1];
-        const char *prog = "/sbin/init";
+        char *prog = "/sbin/init";
 
         args[0] = prog;
         for (int i = 1; i < argc; i++)
