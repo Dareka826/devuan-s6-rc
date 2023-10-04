@@ -72,13 +72,13 @@ case "${RUNLEVEL}" in
         do_init_d_rc "${RUNLEVEL}"
         ;;
     "0")
-        do_s6_svscan_terminate
         do_init_d_rc "${RUNLEVEL}"
+        do_s6_svscan_terminate
         do_off
         ;;
     "6")
-        do_s6_svscan_terminate
         do_init_d_rc "${RUNLEVEL}"
+        do_s6_svscan_terminate
         do_reboot
         ;;
     "1"|"2"|"3"|"4"|"5")
