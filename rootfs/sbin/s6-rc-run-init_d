@@ -11,7 +11,7 @@ if [ "${RUNLEVEL}" = "s" ]; then
     RUNLEVEL="S"
 fi
 
-RC_DIR="/etc/init.d/rc${RUNLEVEL}.d"
+RC_DIR="/etc/rc${RUNLEVEL}.d"
 
 if stat -t "${RC_DIR}"/K* >/dev/null 2>&1; then
     for SV in "${RC_DIR}"/K*; do
