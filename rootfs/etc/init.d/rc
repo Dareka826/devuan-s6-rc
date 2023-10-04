@@ -73,7 +73,7 @@ do_reboot() { reboot   -d -h; }
 
 do_dont_kill_s6_tree() {
     pstree -p "$(pgrep -f 's6-svscan /run/service')" | \
-        grep -o '([0-9]\+)' \
+        grep -o '([0-9]\+)' | \
         grep -o '[0-9]\+' >/run/sendsigs.omit.d/s6-svscan-tree
 }
 
