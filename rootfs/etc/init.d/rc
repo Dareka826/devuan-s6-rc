@@ -90,11 +90,6 @@ case "${RUNLEVEL}" in
         ;;
     "1"|"2"|"3"|"4"|"5")
         do_init_d_rc "${RUNLEVEL}"
-
-        bash
-
-        printf "CONT: " ; read VAR
-        telinit 6
         ;;
     *)
         telinit 6
