@@ -82,6 +82,8 @@ case "${RUNLEVEL}" in
         do_reboot
         ;;
     "1"|"2"|"3"|"4"|"5")
+        do_init_d_rc "${RUNLEVEL}"
+
         bash
 
         printf "CONT: " ; read VAR
