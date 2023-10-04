@@ -37,6 +37,10 @@ do_s6_svscan() {
         s6-svscan /run/service 2>&1 | \
             s6-log -b -- t n10 s1000000 /var/log/s6-svscan
     } &
+
+    # Add s6-svscan and s6-log to sendsigs.omit
+    pgrep -f 's6-svscan /run/service'       >/run/sendsigs.omit.d/s6-svscan
+    pgrep -f 's6-log .* /var/log/s6-svscan' >/run/sendsigs.omit.d/s6-svscan-log
 }
 
 do_s6_rc_init() {
