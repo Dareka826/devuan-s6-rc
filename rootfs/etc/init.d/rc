@@ -39,6 +39,9 @@ do_s6_svscan() {
     } &
 
     # Add s6-svscan and s6-log to sendsigs.omit
+    if ! [ -d /run/sendsigs.omit.d ]; then
+        mkdir /run/sendsigs.omit.d
+    fi
     pgrep -f 's6-svscan /run/service'       >/run/sendsigs.omit.d/s6-svscan
     pgrep -f 's6-log .* /var/log/s6-svscan' >/run/sendsigs.omit.d/s6-svscan-log
 }
