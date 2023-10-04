@@ -69,7 +69,7 @@ do_init_d_rc() {
 dont_kill_s6_rc() {
     {
         while true; do
-            prgrep 's6-rc' >/run/sendsigs.omit.d/s6-rc
+            pgrep 's6-rc' >/run/sendsigs.omit.d/s6-rc
             sleep 0.2
         done
     } &
