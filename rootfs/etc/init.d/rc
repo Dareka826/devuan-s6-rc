@@ -8,19 +8,30 @@ printf "[I]: Runlevel: %s\n" "${RUNLEVEL}"
 ## Functions {{{
 
 do_mount_fs() {
-    [ -e /proc/stat ] || \
+    # /proc
+    if ! [ -e /proc/stat ]; then
         mount -t proc proc /proc
+    fi
 
-    if grep ' /run ' /proc/mounts >/dev/null 2>&1; then
-        mount -o remount,exec /run
+    # /run
+    if ! grep ' /run ' /proc/mounts >/dev/null 2>&1; then
+        mount -t tmpfs -o exec none /run
     else
-        mount -t tmpfs none -o exec /run
+        mount -o remount,exec /run
+    fi
+
+    # /var
+    if [ -e /etc/fstab ]; then
+        if grep '/var' /etc/fstab >/dev/null 2>&1; then
+            mount /var || :
+        fi
     fi
 }
 
 do_s6_svscan() {
-    [ -d /run/service ] || \
+    if ! [ -d /run/service ]; then
         mkdir /run/service
+    fi
 
     {
         s6-svscan /run/service 2>&1 | \
@@ -32,14 +43,20 @@ do_s6_rc_init() {
     [ -d /etc/s6/rc ] || mkdir -p /etc/s6/rc
     [ -d /etc/s6/sv ] || mkdir -p /etc/s6/sv
 
-    [ -e /etc/s6/rc/compiled ] || \
+    if ! [ -e /etc/s6/rc/compiled ]; then
         s6-db-reload
+    fi
 
     s6-rc-init -c /etc/s6/rc/compiled -l /run/s6-rc /run/service
 }
 
-do_s6_svscan_terminate() {
-    s6-svscanctl -t /run/service || :
+do_s6_svscan_terminate() { s6-svscanctl -t /run/service || : ; }
+
+do_init_d_rc() {
+    s6-rc -l /run/s6-rc -a list | \
+        grep '^rc[Ss0-6]$' | xargs -d'\n' s6-rc -v2 -l /run/s6-rc -d change
+
+    s6-rc -v2 -l /run/s6-rc -u change rc"${1}"
 }
 
 do_off()    { poweroff -d -h; }
@@ -52,13 +69,16 @@ case "${RUNLEVEL}" in
         do_mount_fs
         do_s6_svscan
         do_s6_rc_init
+        do_init_d_rc "${RUNLEVEL}"
         ;;
     "0")
         do_s6_svscan_terminate
+        do_init_d_rc "${RUNLEVEL}"
         do_off
         ;;
     "6")
         do_s6_svscan_terminate
+        do_init_d_rc "${RUNLEVEL}"
         do_reboot
         ;;
     "1"|"2"|"3"|"4"|"5")
