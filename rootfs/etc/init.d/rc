@@ -63,7 +63,7 @@ do_init_d_rc() {
     s6-rc -l /run/s6-rc -a list | \
         grep '^rc[Ss0-6]$' | xargs -d'\n' s6-rc -v2 -l /run/s6-rc -d change
 
-    s6-rc -v2 -l /run/s6-rc -u change rc"${1}" &
+    s6-rc -v2 -l /run/s6-rc -u change rc"${1}"
 }
 
 dont_kill_s6_rc() {
