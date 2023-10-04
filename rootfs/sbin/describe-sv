@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+SV_NAME="${1:-}"
+[ -n "${SV_NAME}" ] || exit 1
+
+HEADER="$(sed -n -e '/^### BEGIN INIT INFO/,/^### END INIT INFO/ p' "/etc/init.d/${SV_NAME}" \
+    | awk '/^# [^ ]/ { if (line) print(line); line = $0; } /^#  / { sub(/^#  +/, ""); line = line " " $0; } END { if(line) print(line); }' | \
+    sed 's/^# /' | grep -Ev '^(Short-Description|Description):')"
