@@ -63,19 +63,11 @@ do_init_d_rc() {
     s6-rc -l /run/s6-rc -a list | \
         grep '^rc[Ss0-6]$' | xargs -d'\n' s6-rc -v2 -l /run/s6-rc -d change
 
-    s6-rc -v2 -l /run/s6-rc -u change rc"${1}" &
-    printf "%s\n" "${!}" >>/run/sendsigs.omit.d/s6-rc
-    wait "${!}"
+    s6-rc -v2 -l /run/s6-rc -u change rc"${1}"
 }
 
 do_off()    { poweroff -d -h; }
 do_reboot() { reboot   -d -h; }
-
-do_dont_kill_s6_tree() {
-    pstree -p "$(pgrep -f 's6-svscan /run/service')" | \
-        grep -o '([0-9]\+)' | \
-        grep -o '[0-9]\+' >/run/sendsigs.omit.d/s6-svscan-tree
-}
 
 ## }}}
 
@@ -87,15 +79,13 @@ case "${RUNLEVEL}" in
         do_init_d_rc "${RUNLEVEL}"
         ;;
     "0")
-        do_dont_kill_s6_tree
-        do_init_d_rc "${RUNLEVEL}"
         do_s6_svscan_terminate
+        s6-rc-run-init_d "${RUNLEVEL}"
         do_off
         ;;
     "6")
-        do_dont_kill_s6_tree
-        do_init_d_rc "${RUNLEVEL}"
         do_s6_svscan_terminate
+        s6-rc-run-init_d "${RUNLEVEL}"
         do_reboot
         ;;
     "1"|"2"|"3"|"4"|"5")
