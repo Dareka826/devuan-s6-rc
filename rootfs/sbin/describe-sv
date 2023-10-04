@@ -6,4 +6,12 @@ SV_NAME="${1:-}"
 
 HEADER="$(sed -n -e '/^### BEGIN INIT INFO/,/^### END INIT INFO/ p' "/etc/init.d/${SV_NAME}" \
     | awk '/^# [^ ]/ { if (line) print(line); line = $0; } /^#  / { sub(/^#  +/, ""); line = line " " $0; } END { if(line) print(line); }' | \
-    sed 's/^# //' | grep -Ev '^(Short-Description|Description):')"
+    sed 's/^# //' | grep -Ev '^(Short-Description|Description):' | \
+    sed -e 's/^Required-Start: \+/After: /' \
+        -e 's/^Required-Stop: \+/Stop_Before: /' \
+        -e 's/^Should-Start: \+/Weak_After: /' \
+        -e 's/^Should-Stop: \+/Weak_Stop_Before: /' \
+        -e 's/^X-Start-Before: \+/Before: /' \
+        -e 's/^X-Stop-After: \+/Stop_After: /')"
+
+printf "%s\n" "${HEADER}"
