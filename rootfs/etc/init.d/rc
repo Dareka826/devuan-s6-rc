@@ -60,7 +60,16 @@ do_init_d_rc() {
     s6-rc -l /run/s6-rc -a list | \
         grep '^rc[Ss0-6]$' | xargs -d'\n' s6-rc -v2 -l /run/s6-rc -d change
 
-    s6-rc -v2 -l /run/s6-rc -u change rc"${1}"
+    s6-rc -v2 -l /run/s6-rc -u change rc"${1}" &
+}
+
+dont_kill_s6_rc() {
+    {
+        while true; do
+            prgrep 's6-rc' >/run/sendsigs.omit.d/s6-rc
+            sleep 0.2
+        done
+    } &
 }
 
 do_off()    { poweroff -d -h; }
@@ -76,11 +85,13 @@ case "${RUNLEVEL}" in
         do_init_d_rc "${RUNLEVEL}"
         ;;
     "0")
+        dont_kill_s6_rc
         do_init_d_rc "${RUNLEVEL}"
         do_s6_svscan_terminate
         do_off
         ;;
     "6")
+        dont_kill_s6_rc
         do_init_d_rc "${RUNLEVEL}"
         do_s6_svscan_terminate
         do_reboot
