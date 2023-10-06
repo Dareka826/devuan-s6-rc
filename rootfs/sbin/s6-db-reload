@@ -1,18 +1,24 @@
 #!/bin/sh
 set -eu
 
-TIME="$(s6-clock)"
-
-s6-rc-compile /etc/s6/rc/compiled-"${TIME}" /etc/s6/sv
-
-if [ -e /run/s6-rc ]; then
-    s6-rc-update -l /run/s6-rc /etc/s6/rc/compiled-"${TIME}"
+if command -v s6-clock >/dev/null 2>&1; then
+    TIME="$(s6-clock)"
+else
+    TIME="$(date "+%s")"
 fi
 
-if [ -e /etc/s6/rc/compiled ]; then
+NEW_DB="compiled-${TIME}"
+
+s6-rc-compile "/etc/s6/rc/${NEW_DB}" "/etc/s6/sv"
+
+if [ -e "/run/s6-rc" ]; then
+    s6-rc-update -l "/run/s6-rc" "/etc/s6/rc/${NEW_DB}"
+fi
+
+if [ -e "/etc/s6/rc/compiled" ]; then
     # Atomic link overwrite trick
-    ln -s compiled-"${TIME}" /etc/s6/rc/compiled/compiled
-    mv /etc/s6/rc/compiled/compiled /etc/s6/rc
+    ln -s "${NEW_DB}" "/etc/s6/rc/${NEW_DB}/compiled"
+    mv "/etc/s6/rc/${NEW_DB}/compiled" "/etc/s6/rc/"
 else
-    ln -s compiled-"${TIME}" /etc/s6/rc/compiled
+    ln -s "${NEW_DB}" "/etc/s6/rc/compiled"
 fi
